@@ -1,0 +1,163 @@
+<html lang="zh">
+
+<head>
+  <title>Sakura练习(购物车)</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="node_modules/vue/dist/vue.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
+  
+</head>
+
+<body>
+  <div id="app">
+    <div class="container">
+      <div class="row">
+
+        <table class="table table-hover table-bordered">
+          <caption class="h2 text-warning text-center">阿攀购物车</caption>
+          <tr>
+            <th>全选
+              <input type="checkbox" v-model="checkAll" @change="change">
+            </th>
+            <td>商品</td>
+            <td>单价</td>
+            <td>数量</td>
+            <td>小计</td>
+            <td>操作</td>
+          </tr>
+          <tr v-for="(product,index) in products">
+            <td><input type="checkbox" v-model="product.isSelected" @change="checkone"></td>
+            <td>
+              <img :src="product.productCover" :title="product.productName">
+              {{product.productInfo}}
+            </td>
+            <td>
+              {{product.productPrice}}
+            </td>
+            <td><input type="number" v-model.number="product.productCount" min="1">
+            </td>
+            <td>{{product.productPrice*product.productCount | toFixed(2)}}</td>
+            <td><button class="btn btn-danger" @click="remove(product)">删除</button></td>
+          </tr>
+          <tr>
+            <td colspan="6">总价格:{{sum() | toFixed(2)}}</td>
+          </tr>
+
+        </table>
+        <button type="button" class="btn btn-default">（默认样式）Default</button>
+
+        <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
+        <button type="button" class="btn btn-primary">（首选项）Primary</button>
+
+        <!-- Indicates a successful or positive action -->
+        <button type="button" class="btn btn-success">（成功）Success</button>
+
+        <!-- Contextual button for informational alert messages -->
+        <button type="button" class="btn btn-info">（一般信息）Info</button>
+
+        <!-- Indicates caution should be taken with this action -->
+        <button type="button" class="btn btn-warning">（警告）Warning</button>
+
+        <!-- Indicates a dangerous or potentially negative action -->
+        <button type="button" class="btn btn-danger">（危险）Danger</button>
+
+        <!-- Deemphasize a button by making it look like a link while maintaining button behavior -->
+        <button type="button" class="btn btn-link">（链接）Link</button>
+
+
+      </div>
+
+    </div>
+
+  </div>
+  <script src="node_modules/vue/dist/vue.js"></script>
+  <script src="node_modules/axios/dist/axios.js"></script>
+  <script>
+    let vm = new Vue({
+      el: '#app',
+      created() {
+        this.getData();
+      },
+      data: {
+        products: [{
+            isSelected: true,
+            productCover: "https://img10.360buyimg.com/cms/s80x80_jfs/t23515/125/617565347/1063032/54b38831/5b398defN31851568.jpg",
+            productName: "王小波 似水柔情",
+            productInfo: "颜色：似水柔情",
+            productPrice: 28.68,
+            productCount: 3
+          },
+          {
+            isSelected: false,
+            productCover: "https://img10.360buyimg.com/cms/s80x80_jfs/t23515/125/617565347/1063032/54b38831/5b398defN31851568.jpg",
+            productName: "王小波 似水柔情",
+            productInfo: "颜色：似水柔情",
+            productPrice: 28.68,
+            productCount: 3
+          },
+          {
+            isSelected: false,
+            productCover: "https://img10.360buyimg.com/cms/s80x80_jfs/t23515/125/617565347/1063032/54b38831/5b398defN31851568.jpg",
+            productName: "王小波 似水柔情",
+            productInfo: "颜色：似水柔情",
+            productPrice: 28.68,
+            productCount: 3
+          }
+        ],
+
+        checkAll: false
+      },
+
+      filters: {
+        toFixed(input, param1) {
+          return '￥' + input.toFixed(param1);
+        }
+      },
+      methods: {
+        change() {
+          this.products.forEach(item =>
+            item.isSelected = this.checkAll
+          );
+        },
+        remove(p) {
+          this.products = this.products.filter(item => item !== p);
+        },
+        checkone() {
+          this.checkAll = this.products.every(item => item.isSelected);
+        },
+        // computed:{
+        //     checkAll:{
+        //         get(){
+        //             return this.products.every(item => item.isSelected);
+        //         },
+        //         set(val){
+        //             this.products.forEach(item => item.isSelected = val);
+        //         },
+        //     },
+        // },
+        getData() {
+          axios.get('./carts.json').then(res => {
+            this.products = res.data;
+            this.checkone();
+          }, err => {
+            console.log(err);
+          });
+
+        },
+        sum() {
+          return this.products.reduce((prev, next) => {
+            if (!next.isSelected)
+              return prev;
+            return prev + next.productPrice * next.productCount;
+          }, 0)
+        },
+      }
+    });
+
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.js"></script>
+</body>
+
+</html>
